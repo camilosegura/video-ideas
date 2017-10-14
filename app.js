@@ -2,6 +2,8 @@ const express = require('express');
 const app = express();
 const exphbs  = require('express-handlebars');
 const bodyParser = require('body-parser');
+const flash = require('connect-flash');
+const session = require('express-session');
 const mongoose = require('mongoose');
 const methodOverride = require('method-override');
 require('./models/Idea');
@@ -31,6 +33,22 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 app.use(methodOverride('_method'));
+
+app.use(session({
+  secret: 'secret',
+  resave: true,
+  saveUninitialized: true
+}));
+
+app.use(flash());
+
+app.use((req, res, next) => {
+  res.locals.success_msg  = req.flash('success_msg');
+  res.locals.error_msg  = req.flash('error_msg');
+  res.locals.error  = req.flash('error');
+
+  next();
+})
 
 app.get('/', (req, res) => {
   const title = 'Index Page';
@@ -72,6 +90,7 @@ app.post('/ideas', (req, res) => {
     new Idea(newUser)
       .save()
       .then(() => {
+        req.flash('success_msg', 'Video Idea added.');
         res.redirect('/ideas');
       });
   }
@@ -111,6 +130,7 @@ app.put('/ideas/:id', (req, res) => {
      return idea.save();
    })
    .then(idea => {
+    req.flash('success_msg', 'Video Idea updated.');
      res.redirect('/ideas');
    });
 });
@@ -120,10 +140,11 @@ app.delete('/ideas/:id', (req, res) => {
     _id: req.params.id
   })
     .then(() => {
-      res.redirect('/ideas')
+      req.flash('success_msg', 'Video Idea removed.');
+      res.redirect('/ideas');
     })
 });
 
 app.listen(port, () => {
-  console.log(`Listening on port ${port}`)
+  console.log(`Listening on port ${port}`);
 })
