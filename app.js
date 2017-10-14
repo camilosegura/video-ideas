@@ -3,6 +3,7 @@ const app = express();
 const exphbs  = require('express-handlebars');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const methodOverride = require('method-override');
 require('./models/Idea');
 const port = 3000;
 
@@ -26,8 +27,10 @@ app.engine('.hbs', exphbs({
 app.set('view engine', '.hbs');
 
 // parse application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ extended: false }))
-app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+
+app.use(methodOverride('_method'));
 
 app.get('/', (req, res) => {
   const title = 'Index Page';
@@ -83,9 +86,43 @@ app.get('/ideas', (req, res) => {
       res.render('ideas/index', {
         ideas: ideas
       });
-    })
+    });
+});
 
-})
+app.get('/ideas/edit/:id', (req, res) => {
+  Idea.findOne({
+    _id: req.params.id
+  })
+    .then(idea => {
+      res.render('ideas/edit', {
+        idea: idea
+      });
+    });
+});
+
+app.put('/ideas/:id', (req, res) => {
+  Idea.findOne({
+    _id: req.params.id
+  })
+   .then(idea => {
+     idea.title = req.body.title;
+     idea.details = req.body.details;
+
+     return idea.save();
+   })
+   .then(idea => {
+     res.redirect('/ideas');
+   });
+});
+
+app.delete('/ideas/:id', (req, res) => {
+  Idea.remove({
+    _id: req.params.id
+  })
+    .then(() => {
+      res.redirect('/ideas')
+    })
+});
 
 app.listen(port, () => {
   console.log(`Listening on port ${port}`)
