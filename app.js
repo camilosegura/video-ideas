@@ -1,7 +1,18 @@
 const express = require('express');
 const app = express();
 const exphbs  = require('express-handlebars');
+const mongoose = require('mongoose');
 const port = 3000;
+
+mongoose.Promise = global.Promise;
+
+mongoose.connect('mongodb://localhost/video-ideas-dev', {
+  useMongoClient: true
+})
+  .then(() => {
+    console.log('Mongo Connected...');
+  })
+  .catch(e => console.log(e));
 
 app.engine('.hbs', exphbs({
   defaultLayout: 'main',
