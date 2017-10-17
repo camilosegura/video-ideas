@@ -10,12 +10,11 @@ const mongoose = require('mongoose');
 const methodOverride = require('method-override');
 const ideas = require('./routes/ideas');
 const users = require('./routes/users');
-const port = process.env.port || 3000;
+const port = process.env.PORT || 3000;
 const db = require('./config/database');
 
 require('./config/passport')(passport);
 
-console.log('server vars', process.env.port, db, process.env)
 mongoose.Promise = global.Promise;
 
 mongoose.connect(db.mongoURI, {
