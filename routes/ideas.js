@@ -31,8 +31,9 @@ router.post('/', ensureAuthenticated, (req, res) => {
   } else {
     const newUser = {
       title: req.body.title,
-      details: req.body.details
-    }
+      details: req.body.details,
+      user: req.user.id
+    };
     new Idea(newUser)
       .save()
       .then(() => {
@@ -43,7 +44,7 @@ router.post('/', ensureAuthenticated, (req, res) => {
 });
 
 router.get('/', (req, res) => {
-  Idea.find({})
+  Idea.find({user: req.user.id})
     .sort({
       date: 'desc'
     })
@@ -59,9 +60,14 @@ router.get('/edit/:id', ensureAuthenticated, (req, res) => {
     _id: req.params.id
   })
     .then(idea => {
-      res.render('ideas/edit', {
-        idea: idea
-      });
+      if (idea.user !== req.user.id) {
+        req.flash('error_msg','Not Authorize');
+        res.redirect('/ideas');
+      } else {
+        res.render('ideas/edit', {
+          idea: idea
+        });
+      }
     });
 });
 
