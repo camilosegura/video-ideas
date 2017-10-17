@@ -10,14 +10,15 @@ const mongoose = require('mongoose');
 const methodOverride = require('method-override');
 const ideas = require('./routes/ideas');
 const users = require('./routes/users');
-const port = 3000;
+const port = process.env.port || 3000;
+const db = require('./config/database');
 
 require('./config/passport')(passport);
 
 
 mongoose.Promise = global.Promise;
 
-mongoose.connect('mongodb://localhost/video-ideas-dev', {
+mongoose.connect(db.mongoURI, {
   useMongoClient: true
 })
   .then(() => {

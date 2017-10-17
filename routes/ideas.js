@@ -43,7 +43,7 @@ router.post('/', ensureAuthenticated, (req, res) => {
   }
 });
 
-router.get('/', (req, res) => {
+router.get('/', ensureAuthenticated, (req, res) => {
   Idea.find({user: req.user.id})
     .sort({
       date: 'desc'
@@ -76,10 +76,15 @@ router.put('/:id', ensureAuthenticated, (req, res) => {
     _id: req.params.id
   })
    .then(idea => {
-     idea.title = req.body.title;
-     idea.details = req.body.details;
+    if (idea.user !== req.user.id) {
+      req.flash('error_msg','Not Authorize');
+      res.redirect('/ideas');
+    } else {
+      idea.title = req.body.title;
+      idea.details = req.body.details;
 
-     return idea.save();
+      return idea.save();
+    }
    })
    .then(idea => {
     req.flash('success_msg', 'Video Idea updated.');
@@ -89,7 +94,8 @@ router.put('/:id', ensureAuthenticated, (req, res) => {
 
 router.delete('/:id', ensureAuthenticated, (req, res) => {
   Idea.remove({
-    _id: req.params.id
+    _id: req.params.id,
+    user: req.user.id
   })
     .then(() => {
       req.flash('success_msg', 'Video Idea removed.');
