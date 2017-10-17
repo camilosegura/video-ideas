@@ -15,7 +15,7 @@ const db = require('./config/database');
 
 require('./config/passport')(passport);
 
-console.log('server vars', process.env.port, db)
+console.log('server vars', process.env.port, db, process.env)
 mongoose.Promise = global.Promise;
 
 mongoose.connect(db.mongoURI, {
